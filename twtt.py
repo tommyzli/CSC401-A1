@@ -60,18 +60,18 @@ def twtt2(line):
     return line
 
 
-def twtt3():
+def twtt3(line):
     """
     Remove all URLs from the line.
     """
-    pass
+    return re.sub(r'(http|www)\b', '', line)
 
 
-def twtt4():
+def twtt4(line):
     """
     Remove all @ and # from the line.
     """
-    pass
+    return re.sub(r'(#|@)(\w*)\b', r'\2', line)
 
 
 def twtt5():
