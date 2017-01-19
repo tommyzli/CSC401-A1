@@ -64,7 +64,16 @@ def twtt3(line):
     """
     Remove all URLs from the line.
     """
-    return re.sub(r'(http|www)\b', '', line)
+    line = re.sub(r'(http|www)\b', '', line)
+
+    # short urls
+    line = re.sub(r'bit\.ly/.*', '', line)
+    line = re.sub(r'goo\.gl/.*', '', line)
+    line = re.sub(r't\.co/.*', '', line)
+    line = re.sub(r'ow\.ly/.*', '', line)
+    line = re.sub(r'youtu\.be/.*', '', line)
+
+    return line
 
 
 def twtt4(line):
@@ -74,25 +83,71 @@ def twtt4(line):
     return re.sub(r'(#|@)(\w*)\b', r'\2', line)
 
 
-def twtt5():
+def twtt5(line, abbreviation_list):
     """
     Add a newline after each sentence.
     """
-    pass
+    indices_to_skip = []
+
+    # first find all indexes of punctuation that should not be split into a new line
+    for abbreviation in abbreviation_list:
+        if abbreviation not in line:
+            continue
+
+        found_index = 0
+        offset = 0
+        while (found_index != -1 or len(abbreviation) + offset < len(line)):
+            found_index = line.find(abbreviation, offset)
+            offset += found_index + len(abbreviation)
+
+            # append the index of the punctuation
+            # (assuming each abbreviation ends with a punctuation symbol)
+            if found_index != -1:
+                indices_to_skip.append(found_index + len(abbreviation) - 1)
+
+    sentence_delimiters = [r'\.', r'!', r'\?']
+    indices_of_sentence_delimiters = []
+    # find all sentence delimiters that are followed by whitespace
+    for delimiter in sentence_delimiters:
+        indices_of_sentence_delimiters.extend([
+            match.start()
+            for match in re.finditer(r'{}\s'.format(delimiter), line)
+        ])
+
+    # filter out indexes of abbreviations
+    indices_of_sentence_delimiters = [
+        index
+        for index in indices_of_sentence_delimiters
+        if index not in indices_to_skip
+    ]
+
+    # turn line into a string to to make modifying elements easier
+    line = list(line)
+    for index in indices_of_sentence_delimiters:
+        line[index + 1] = "\n"
+
+    # turn line back into a string
+    return "".join(line)
 
 
-def twtt7():
+def twtt7(line):
     """
     Separate each token with spaces (including clitics and punctuation).
     """
-    pass
+
+    # split punctuation
+    line = re.sub(r"([^\w\s']+)", r" \1", line)
+
+    # split clitics
+    line = re.sub(r"(\b\w+)('\w*')", r'\1 \2', line)
+    return line
 
 
-def twtt8():
+def twtt8(line):
     """
     Tag each token with it's part-of-speech.
     """
-    pass
+    return line
 
 
 def twtt9():
