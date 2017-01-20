@@ -1,5 +1,11 @@
+import csv
 import re
 import sys
+
+import NLPlib
+
+
+tagger = NLPlib.NLPlib()
 
 
 HTML_CHARACTER_CODE_MAPPING = {
@@ -64,14 +70,16 @@ def twtt3(line):
     """
     Remove all URLs from the line.
     """
-    line = re.sub(r'(http|www)\b', '', line)
+
+    # matches (http|www)*.* followed by a single whitespace character or the end of the string
+    line = re.sub(r'(http|www)\S+\.\S+(\s{1}|$)', '', line, flags=re.IGNORECASE)
 
     # short urls
-    line = re.sub(r'bit\.ly/.*', '', line)
-    line = re.sub(r'goo\.gl/.*', '', line)
-    line = re.sub(r't\.co/.*', '', line)
-    line = re.sub(r'ow\.ly/.*', '', line)
-    line = re.sub(r'youtu\.be/.*', '', line)
+    line = re.sub(r'bit\.ly/\S*(\s|$)', '', line, flags=re.IGNORECASE)
+    line = re.sub(r'goo\.gl/\S*(\s|$)', '', line, flags=re.IGNORECASE)
+    line = re.sub(r't\.co/\S*(\s|$)', '', line, flags=re.IGNORECASE)
+    line = re.sub(r'ow\.ly/\S*(\s|$)', '', line, flags=re.IGNORECASE)
+    line = re.sub(r'youtu\.be/\S*(\s|$)', '', line, flags=re.IGNORECASE)
 
     return line
 
@@ -139,7 +147,7 @@ def twtt7(line):
     line = re.sub(r"([^\w\s']+)", r" \1", line)
 
     # split clitics
-    line = re.sub(r"(\b\w+)('\w*')", r'\1 \2', line)
+    line = re.sub(r"(\b\w*)('\w*)", r"\1 \2", line)
     return line
 
 
@@ -147,17 +155,71 @@ def twtt8(line):
     """
     Tag each token with it's part-of-speech.
     """
-    return line
+    line = line.rstrip()
+    if not line:
+        # skip emty lines
+        return line
+
+    whitespace = re.split(r'\S+', line)
+    for item in whitespace:
+        if len(item) > 2:
+            item = item[0]
+
+    split = re.split(r'\s+', line)
+    tags = tagger.tag(split)
+
+    newline = ''
+    for i in range(0, len(split)):
+        newline += '{0}{1}/{2}'.format(whitespace[i], split[i], tags[i])
+
+    return newline
 
 
-def twtt9():
+def twtt9(line, polarity):
     """
     Demarcate the tweet.
     """
-    pass
+    return '<A={}>\n'.format(polarity) + line
+
+
+def main(input_path, student_id, output_path):
+
+    # get common abbreviations, used for twtt5()
+    with open('abbrev.english', 'r') as abbreviation_file:
+        abbreviations = abbreviation_file.read().splitlines()
+
+    with open(output_path, 'w') as output_file:
+        with open(input_path, 'r') as csv_input:
+            reader = csv.reader(csv_input)
+            for line in reader:
+                polarity = line[0]
+                tweet = line[5]
+
+                tweet = twtt1(tweet)
+                tweet = twtt2(tweet)
+                tweet = twtt3(tweet)
+                tweet = twtt4(tweet)
+                tweet = twtt5(tweet, abbreviations)
+                tweet = twtt7(tweet)
+                tweet = twtt8(tweet)
+                tweet = twtt9(tweet, polarity)
+
+                if tweet[len(tweet) - 1] != '\n':
+                    tweet = tweet + '\n'
+
+                output_file.write(tweet)
 
 
 if __name__ == '__main__':
+    '''
+    if sys.argv[0] != 3:
+        print "Incorrect number of arguments, proper usage is:"
+        print "twtt.py <input_path> <student_id> <output_path>"
+        sys.exit(1)
+    '''
+
     input_path = sys.argv[1]
-    student_id = sys.argv[2]
+    student_id = int(sys.argv[2])
     output_path = sys.argv[3]
+
+    main(input_path, student_id, output_path)
