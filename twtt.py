@@ -165,7 +165,7 @@ def twtt7(line):
     """
 
     # split punctuation
-    line = re.sub(r"([^\w\s'\.]+)", r" \1", line)
+    line = re.sub(r"([^\w\s']+)", r" \1", line)
 
     # split clitics
     line = re.sub(r"(\b\w*)('\w*)", r"\1 \2", line)
@@ -203,11 +203,36 @@ def twtt9(line, polarity):
     return '<A={}>\n'.format(polarity) + line
 
 
-def main(input_path, student_id, output_path):
-    with open(output_path, 'w') as output_file:
-        with open(input_path, 'r') as csv_input:
-            reader = csv.reader(csv_input)
-            for line in reader:
+def process_whole_file(output_file, input_path):
+    # run the preprocessors on the entire file
+    with open(input_path, 'r') as csv_input:
+        reader = csv.reader(csv_input)
+        for line in reader:
+            polarity = line[0]
+            tweet = line[5]
+
+            tweet = twtt1(tweet)
+            tweet = twtt2(tweet)
+            tweet = twtt3(tweet)
+            tweet = twtt4(tweet)
+            tweet = twtt5(tweet)
+            tweet = twtt7(tweet)
+            tweet = twtt8(tweet)
+            tweet = twtt9(tweet, polarity)
+
+            if tweet[len(tweet) - 1] != '\n':
+                tweet = tweet + '\n'
+
+            output_file.write(tweet)
+
+
+def process_sections(output_file, input_path, student_id):
+    # file is too big, only process 20,000 lines
+    base = (student_id % 80) * 10000
+    with open(input_path, 'r') as csv_input:
+        reader = csv.reader(csv_input)
+        for i, line in enumerate(reader):
+            if (i >= base and i < base + 10000) or (i >= base + 800000 and i < base + 810000):
                 polarity = line[0]
                 tweet = line[5]
 
@@ -224,6 +249,17 @@ def main(input_path, student_id, output_path):
                     tweet = tweet + '\n'
 
                 output_file.write(tweet)
+
+
+def main(input_path, student_id, output_path):
+    # count line numbers in csv input
+    line_numbers = sum(1 for line in open(input_path))
+
+    with open(output_path, 'w') as output_file:
+        if line_numbers < 1600000:
+            process_whole_file(output_file, input_path)
+        else:
+            process_sections(output_file, input_path, student_id)
 
 
 if __name__ == '__main__':
