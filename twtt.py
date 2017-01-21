@@ -7,6 +7,23 @@ import NLPlib
 
 tagger = NLPlib.NLPlib()
 
+# get common abbreviations, used for twtt5()
+with open('abbrev.english', 'r') as abbreviation_file:
+    abbreviation_list = abbreviation_file.read().splitlines()
+
+# add other abbreviations not in the file
+abbreviation_list.extend([
+    # months
+    'jan.', 'feb.', 'mar.', 'apr.', 'jun.', 'aug.', 'sept.', 'oct.', 'nov.', 'dec.',
+    # provinces
+    'a.b.', 'b.c.', 'm.b.', 'n.b.', 'n.l.', 'n.t.', 'n.s.', 'n.u.', 'o.n.', 'p.e.', 'q.c.', 's.k.', 'y.k.',
+    # countries
+    'c.a.', 'u.s.', 'u.k.', 'g.b.', 'f.r.', 'c.n.', 'd.e', 'j.p.', 'r.u.',
+])
+
+# lowercase all abbreviations
+abbreviation_list = [abbrev.lower() for abbrev in abbreviation_list]
+
 
 HTML_CHARACTER_CODE_MAPPING = {
     '&#32;': ' ',
@@ -91,7 +108,7 @@ def twtt4(line):
     return re.sub(r'(#|@)(\w*)\b', r'\2', line)
 
 
-def twtt5(line, abbreviation_list):
+def twtt5(line):
     """
     Add a newline after each sentence.
     """
@@ -99,19 +116,23 @@ def twtt5(line, abbreviation_list):
 
     # first find all indexes of punctuation that should not be split into a new line
     for abbreviation in abbreviation_list:
-        if abbreviation not in line:
+        if abbreviation not in line.lower():
             continue
 
         found_index = 0
         offset = 0
         while (found_index != -1 or len(abbreviation) + offset < len(line)):
-            found_index = line.find(abbreviation, offset)
+            found_index = line.lower().find(abbreviation, offset)
             offset += found_index + len(abbreviation)
 
             # append the index of the punctuation
-            # (assuming each abbreviation ends with a punctuation symbol)
             if found_index != -1:
-                indices_to_skip.append(found_index + len(abbreviation) - 1)
+                # find local indices of all periods in abbreviation
+                # indices_to_skip.append(found_index + len(abbreviation) - 1)
+                period_indices = [i for i, char in enumerate(abbreviation) if char == '.']
+                indices_to_skip.extend(
+                    [found_index + local_index for local_index in period_indices]
+                )
 
     sentence_delimiters = [r'\.', r'!', r'\?']
     indices_of_sentence_delimiters = []
@@ -144,7 +165,7 @@ def twtt7(line):
     """
 
     # split punctuation
-    line = re.sub(r"([^\w\s']+)", r" \1", line)
+    line = re.sub(r"([^\w\s'\.]+)", r" \1", line)
 
     # split clitics
     line = re.sub(r"(\b\w*)('\w*)", r"\1 \2", line)
@@ -183,11 +204,6 @@ def twtt9(line, polarity):
 
 
 def main(input_path, student_id, output_path):
-
-    # get common abbreviations, used for twtt5()
-    with open('abbrev.english', 'r') as abbreviation_file:
-        abbreviations = abbreviation_file.read().splitlines()
-
     with open(output_path, 'w') as output_file:
         with open(input_path, 'r') as csv_input:
             reader = csv.reader(csv_input)
@@ -199,7 +215,7 @@ def main(input_path, student_id, output_path):
                 tweet = twtt2(tweet)
                 tweet = twtt3(tweet)
                 tweet = twtt4(tweet)
-                tweet = twtt5(tweet, abbreviations)
+                tweet = twtt5(tweet)
                 tweet = twtt7(tweet)
                 tweet = twtt8(tweet)
                 tweet = twtt9(tweet, polarity)
@@ -211,13 +227,6 @@ def main(input_path, student_id, output_path):
 
 
 if __name__ == '__main__':
-    '''
-    if sys.argv[0] != 3:
-        print "Incorrect number of arguments, proper usage is:"
-        print "twtt.py <input_path> <student_id> <output_path>"
-        sys.exit(1)
-    '''
-
     input_path = sys.argv[1]
     student_id = int(sys.argv[2])
     output_path = sys.argv[3]
