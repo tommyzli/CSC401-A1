@@ -11,16 +11,6 @@ tagger = NLPlib.NLPlib()
 with open('abbrev.english', 'r') as abbreviation_file:
     abbreviation_list = abbreviation_file.read().splitlines()
 
-# add other abbreviations not in the file
-abbreviation_list.extend([
-    # months
-    'jan.', 'feb.', 'mar.', 'apr.', 'jun.', 'aug.', 'sept.', 'oct.', 'nov.', 'dec.',
-    # provinces
-    'a.b.', 'b.c.', 'm.b.', 'n.b.', 'n.l.', 'n.t.', 'n.s.', 'n.u.', 'o.n.', 'p.e.', 'q.c.', 's.k.', 'y.k.',
-    # countries
-    'c.a.', 'u.s.', 'u.k.', 'g.b.', 'f.r.', 'c.n.', 'd.e', 'j.p.', 'r.u.',
-])
-
 # lowercase all abbreviations
 abbreviation_list = [abbrev.lower() for abbrev in abbreviation_list]
 
