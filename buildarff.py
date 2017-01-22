@@ -20,54 +20,68 @@ third_person_pronoun_list = [pronoun.lower() for pronoun in third_person_pronoun
 
 
 slang_acronyms = [
-    'smh', 'fwb', 'lmfao', 'lmao', 'lms', 'tbh', 'rofl', 'wtf', 'bff', 'wyd', 'lylc',
-    'brb', 'atm', 'imao', 'sml', 'btw', 'bw', 'imho', 'fyi', 'ppl', 'sob', 'ttyl',
+    'smh', 'fwb', 'lmfao', 'lmao', 'lms', 'lol', 'tbh', 'rofl', 'wtf', 'bff', 'wyd',
+    'lylc', 'brb', 'atm', 'imao', 'sml', 'btw', 'bw', 'imho', 'fyi', 'ppl', 'sob', 'ttyl',
     'imo', 'ltr', 'thx', 'kk', 'omg', 'ttys', 'afn', 'bbs', 'cya', 'ez', 'f2f', 'gtr',
     'ic', 'jk', 'k', 'ly', 'ya', 'nm', 'np', 'plz', 'ru', 'so', 'tc', 'tmi', 'ym',
     'ur', 'u', 'sol',
 ]
 
 
+def get_count(tweet, search_string):
+    # words are prefixed by either whitespace or a new line
+    return tweet.count(' {}'.format(search_string)) + tweet.count('\n{}'.format(search_string))
+
+
 def feat1(tweet):
     '''
     Number of first-person pronouns.
     '''
-    pass
+    count = 0
+    for pronoun in first_person_pronoun_list:
+        count = count + get_count(tweet, pronoun)
+    return count
 
 
 def feat2(tweet):
     '''
     Number of second-person pronouns.
     '''
-    pass
+    count = 0
+    for pronoun in second_person_pronoun_list:
+        count = count + get_count(tweet, pronoun)
+    return count
 
 
 def feat3(tweet):
     '''
     Number of third-person pronouns.
     '''
-    pass
+    count = 0
+    for pronoun in third_person_pronoun_list:
+        count = count + get_count(tweet, pronoun)
+    return count
 
 
 def feat4(tweet):
     '''
     Number of coordinating conjunctions.
     '''
-    pass
+    return tweet.count('/CC')
 
 
 def feat5(tweet):
     '''
     Number of past tense verbs.
     '''
-    pass
+    return tweet.count('/VBD')
 
 
 def feat6(tweet):
     '''
     Number of future tense verbs.
     '''
-    pass
+    return tweet.count('/VBD')
 
 
 def feat7(tweet):
@@ -81,70 +95,77 @@ def feat8(tweet):
     '''
     Number of colons and semicolons.
     '''
-    pass
+    return tweet.count(':') + tweet.count(';')
 
 
 def feat9(tweet):
     '''
     Number of dashes.
     '''
-    pass
+    return tweet.count('-')
 
 
 def feat10(tweet):
     '''
     Number of parentheses.
     '''
-    pass
+    return tweet.count('(') + tweet.count(')')
 
 
 def feat11(tweet):
     '''
     Number of ellipses.
     '''
-    pass
+    return tweet.count('...')
 
 
 def feat12(tweet):
     '''
     Number of common nouns.
     '''
-    pass
+    # count /NN followed by whitespace so it doesn't collide with /NNS
+    return tweet.count('/NN ') + tweet.count('/NN\n') + tweet.count('/NNS')
 
 
 def feat13(tweet):
     '''
     Number of proper nouns.
     '''
-    pass
+    # count /NNP followed by whitespace so it doesn't collide with /NNPS
+    return tweet.count('/NNP ') + tweet.count('/NNP\n') + tweet.count('/NNPS')
 
 
 def feat14(tweet):
     '''
     Number of adverbs.
     '''
-    pass
+    # count /RB followed by whitespace so it doesn't collide with /RBR or /RBS
+    return tweet.count('/RB ') + tweet.count('/RB\n') + tweet.count('/RBR') + tweet.count('/RBS')
 
 
 def feat15(tweet):
     '''
     Number of wh-words.
     '''
-    pass
+    # count /WP followed by whitespace so it doesn't collide with /WP$
+    return tweet.count('/WDT') + tweet.count('/WP$') + tweet.count('/WRB') + tweet.count('/WP ') + tweet.count('/WP\n')
 
 
 def feat16(tweet):
     '''
     Number of modern slang acronyms.
     '''
-    pass
+    count = 0
+    for pronoun in slang_acronyms:
+        count = count + get_count(tweet, pronoun)
+    return count
 
 
 def feat17(tweet):
     '''
     Number of words in all uppercase that are at least 2 characters long.
     '''
-    pass
+    return len(re.findall(r'(^|\s)[A-Z]{2,}/', tweet))
 
 
 def feat18(tweet):
@@ -165,7 +186,7 @@ def feat20(tweet):
     '''
     Number of sentences.
     '''
-    pass
+    return tweet.lstrip('\n').count('\n')
 
 
 def tweet_to_rff(tweet, polarity):
