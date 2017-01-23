@@ -172,21 +172,47 @@ def feat18(tweet):
     '''
     Average number of tokens/sentence.
     '''
-    pass
+    if not tweet:
+        return 0
+
+    sentences = re.split(r'\n', tweet.lstrip().rstrip())
+    tokens_per_sentence = []
+
+    for sentence in sentences:
+        split = re.split(r'\s+', sentence)
+        tokens_per_sentence.append(len(split))
+
+    return sum(tokens_per_sentence) / len(tokens_per_sentence)
 
 
 def feat19(tweet):
     '''
     Average token length (excluding punctuation).
     '''
-    pass
+    num_tokens = 0
+    token_lengths = []
+    tokens = re.split(r'\s+', tweet)
+    for token in tokens:
+        punctuation_match = re.match(r'^\W/.*', token)
+        if punctuation_match:
+            # exclude punctuation tokens
+            continue
+
+        untagged_token = token.rsplit('/', 1)
+        token_lengths.append(len(untagged_token))
+        num_tokens = num_tokens + 1
+
+    if not num_tokens:
+        return 0
+
+    return sum(token_lengths) / num_tokens
 
 
 def feat20(tweet):
     '''
     Number of sentences.
     '''
-    return tweet.lstrip('\n').count('\n')
+    return len(re.split(r'\n', tweet.lstrip().rstrip()))
 
 
 def tweet_to_rff(tweet, polarity):
