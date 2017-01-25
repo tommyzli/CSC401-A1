@@ -247,6 +247,31 @@ def main(input_path, output_path, num_data_points):
     current_polarity = None
     with open(output_path, 'w') as output_file:
         # TODO first write arff headers
+        output_file.write('@RELATION {}\n\n'.format(output_path))
+        output_file.write('@ATTRIBUTE first_person_pronouns NUMERIC\n')
+        output_file.write('@ATTRIBUTE second_person_pronouns NUMERIC\n')
+        output_file.write('@ATTRIBUTE third_person_pronouns NUMERIC\n')
+        output_file.write('@ATTRIBUTE coordinating_conjunctions NUMERIC\n')
+        output_file.write('@ATTRIBUTE past_tense_verbs NUMERIC\n')
+        output_file.write('@ATTRIBUTE future_tense_verbs NUMERIC\n')
+        output_file.write('@ATTRIBUTE commas NUMERIC\n')
+        output_file.write('@ATTRIBUTE colons_and_semicolons NUMERIC\n')
+        output_file.write('@ATTRIBUTE dashes NUMERIC\n')
+        output_file.write('@ATTRIBUTE parentheses NUMERIC\n')
+        output_file.write('@ATTRIBUTE ellipses NUMERIC\n')
+        output_file.write('@ATTRIBUTE common_nouns  NUMERIC\n')
+        output_file.write('@ATTRIBUTE proper_nouns NUMERIC\n')
+        output_file.write('@ATTRIBUTE adverbs NUMERIC\n')
+        output_file.write('@ATTRIBUTE wh_words NUMERIC\n')
+        output_file.write('@ATTRIBUTE slang_acronyms NUMERIC\n')
+        output_file.write('@ATTRIBUTE uppercase_words NUMERIC\n')
+        output_file.write('@ATTRIBUTE average_length_of_sentences NUMERIC\n')
+        output_file.write('@ATTRIBUTE average_length_of_tokens NUMERIC\n')
+        output_file.write('@ATTRIBUTE number_of_sentences NUMERIC\n')
+        output_file.write('@ATTRIBUTE polarity NUMERIC\n')
+        output_file.write('@DATA\n')
+
+        # TODO if num_data_points, limit number of data points
 
         with open(input_path, 'r') as twt_file:
             for line in twt_file:
