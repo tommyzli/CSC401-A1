@@ -95,7 +95,7 @@ def feat8(tweet):
     '''
     Number of colons and semicolons.
     '''
-    return tweet.count(':') + tweet.count(';')
+    return tweet.count(':/:') + tweet.count(';/:')
 
 
 def feat9(tweet):
@@ -109,7 +109,7 @@ def feat10(tweet):
     '''
     Number of parentheses.
     '''
-    return tweet.count('(') + tweet.count(')')
+    return tweet.count('(/(') + tweet.count(')/)')
 
 
 def feat11(tweet):
