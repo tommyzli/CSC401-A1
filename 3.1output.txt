@@ -1,0 +1,42 @@
+The best algorithm was naive Bayes, with 52.0891% of instances correctly classified.
+
+Time taken to build model: 0.19 seconds
+Time taken to test model on training data: 0.65 seconds
+
+=== Error on training data ===
+
+Correctly Classified Instances       11779               58.895  %
+Incorrectly Classified Instances      8221               41.105  %
+Kappa statistic                          0.1779
+Mean absolute error                      0.4432
+Root mean squared error                  0.5088
+Relative absolute error                 88.6423 %
+Root relative squared error            101.7503 %
+Total Number of Instances            20000     
+
+
+=== Confusion Matrix ===
+
+    a    b   <-- classified as
+ 4675 5325 |    a = 0
+ 2896 7104 |    b = 4
+
+
+=== Error on test data ===
+
+Correctly Classified Instances         187               52.0891 %
+Incorrectly Classified Instances       172               47.9109 %
+Kappa statistic                          0.0362
+Mean absolute error                      0.4936
+Root mean squared error                  0.5744
+Relative absolute error                 98.7289 %
+Root relative squared error            114.8833 %
+Total Number of Instances              359     
+
+
+=== Confusion Matrix ===
+
+   a   b   <-- classified as
+  55 122 |   a = 0
+  50 132 |   b = 4
+
