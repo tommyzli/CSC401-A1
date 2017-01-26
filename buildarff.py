@@ -4,17 +4,17 @@ import sys
 
 # scan pronoun files for feat1-3
 with open('/u/cs401/Wordlists/First-person') as first_person_pronoun_file:
-    first_person_pronoun_list = first_person_pronoun_file.read().splitline()
+    first_person_pronoun_list = first_person_pronoun_file.read().splitlines()
 
 first_person_pronoun_list = [pronoun.lower() for pronoun in first_person_pronoun_list]
 
 with open('/u/cs401/Wordlists/Second-person') as second_person_pronoun_file:
-    second_person_pronoun_list = second_person_pronoun_file.read().splitline()
+    second_person_pronoun_list = second_person_pronoun_file.read().splitlines()
 
 second_person_pronoun_list = [pronoun.lower() for pronoun in second_person_pronoun_list]
 
 with open('/u/cs401/Wordlists/Third-person') as third_person_pronoun_file:
-    third_person_pronoun_list = third_person_pronoun_file.read().splitline()
+    third_person_pronoun_list = third_person_pronoun_file.read().splitlines()
 
 third_person_pronoun_list = [pronoun.lower() for pronoun in third_person_pronoun_list]
 
@@ -88,7 +88,7 @@ def feat7(tweet):
     '''
     Number of commas.
     '''
-    pass
+    return tweet.count(',/,')
 
 
 def feat8(tweet):
@@ -182,7 +182,8 @@ def feat18(tweet):
         split = re.split(r'\s+', sentence)
         tokens_per_sentence.append(len(split))
 
-    return sum(tokens_per_sentence) / len(tokens_per_sentence)
+    # cast length of tokens_per_sentence into a float so division doesn't round to the closest int
+    return sum(tokens_per_sentence) / float(len(tokens_per_sentence))
 
 
 def feat19(tweet):
@@ -198,14 +199,15 @@ def feat19(tweet):
             # exclude punctuation tokens
             continue
 
-        untagged_token = token.rsplit('/', 1)
+        untagged_token = token.rsplit('/', 1)[0]  # discard the tag
         token_lengths.append(len(untagged_token))
         num_tokens = num_tokens + 1
 
     if not num_tokens:
         return 0
 
-    return sum(token_lengths) / num_tokens
+    # cast num_tokens into a float so division doesn't round to the closest int
+    return sum(token_lengths) / float(num_tokens)
 
 
 def feat20(tweet):
@@ -268,7 +270,7 @@ def main(input_path, output_path, num_data_points):
         output_file.write('@ATTRIBUTE average_length_of_sentences NUMERIC\n')
         output_file.write('@ATTRIBUTE average_length_of_tokens NUMERIC\n')
         output_file.write('@ATTRIBUTE number_of_sentences NUMERIC\n')
-        output_file.write('@ATTRIBUTE polarity NUMERIC\n')
+        output_file.write('@ATTRIBUTE polarity NUMERIC\n\n')
         output_file.write('@DATA\n')
 
         # TODO if num_data_points, limit number of data points
@@ -292,12 +294,18 @@ def main(input_path, output_path, num_data_points):
                 else:
                     current_tweet = "{0}{1}".format(current_tweet, line)
 
+            if current_tweet:
+                # last tweet
+                output_line = tweet_to_rff(current_tweet, current_polarity)
+                output_file.write(output_line)
+                
+
 
 if __name__ == '__main__':
     twt_input_path = sys.argv[1]
     output_path = sys.argv[2]
     try:
-        num_data_points = sys.argv[3]
+        num_data_points = int(sys.argv[3])
         if num_data_points >= 20000:
             num_data_points = None
     except IndexError:
