@@ -1,0 +1,30 @@
+n               Testing accuracy
+500             49.3036%
+1000            49.3036%
+1400            49.3036%
+2000            49.3036%
+2500            49.3036%
+3000            49.3036%
+3500            49.3036%
+4000            49.3036%
+4500            49.3036%
+5000            49.3036%
+5500            49.3036%
+6000            49.3036%
+6500            49.3036%
+7000            49.3036%
+7500            49.3036%
+8000            49.3036%
+8500            49.3036%
+9000            49.3036%
+9500            49.3036%
+10000           49.3036%
+
+Comments:
+    Surprisingly, all the training file sizes resulted in the exact same accuracy.
+    The value (49.3036%) is less than the accuracy received when using the full
+    training data (52.0891%). Out of curiosity, I tried it with a training data
+    size of 15,000 and got an accuracy of 52.3677%.
+    Possible causes for the unchanging accuracy:
+        -
+        -
