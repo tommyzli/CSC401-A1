@@ -275,8 +275,13 @@ def main(input_path, output_path, num_data_points):
 
         with open(input_path, 'r') as twt_file:
             for line in twt_file:
+                if num_data_points and num_tweets >= num_data_points:
+                    # reached max amount to read
+                    return
+
                 new_tweet = re.search(r'^<A=(\d)>$', line)
-                if new_tweet:  # found beginning of a new tweet
+
+                if new_tweet:
                     if current_tweet:
                         output_line = tweet_to_rff(current_tweet, current_polarity)
                         output_file.write(output_line)
