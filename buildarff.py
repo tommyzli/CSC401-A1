@@ -270,7 +270,7 @@ def main(input_path, output_path, num_data_points):
         output_file.write('@ATTRIBUTE average_length_of_sentences NUMERIC\n')
         output_file.write('@ATTRIBUTE average_length_of_tokens NUMERIC\n')
         output_file.write('@ATTRIBUTE number_of_sentences NUMERIC\n')
-        output_file.write('@ATTRIBUTE polarity NUMERIC\n\n')
+        output_file.write('@ATTRIBUTE polarity {0, 4}\n\n')
         output_file.write('@DATA\n')
 
         # TODO if num_data_points, limit number of data points
