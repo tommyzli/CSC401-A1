@@ -25,6 +25,15 @@ Comments:
     The value (49.3036%) is less than the accuracy received when using the full
     training data (52.0891%). Out of curiosity, I tried it with a training data
     size of 15,000 and got an accuracy of 52.3677%.
-    Possible causes for the unchanging accuracy:
-        -
-        -
+
+    Cause of the unchanging accuracy:
+    The training data (training.1600000.processed.noemoticon.csv) is sorted by
+    polarity. The first half of the file contains tweets with polarity=0, and
+    the second half contains tweets with polarity=4. This means that running
+    buildarff.py on train.twt with a limit of less than half of the tweets means
+    there will be no instances of polarity=4 in the arff file. This is also why
+    the accuracy improves with a training data size of 15,000, as it contains
+    over 50% of the data, meaning it contains some data with polarity=4.
+
+    If the training data was not sorted by polarity, then I would expect accuracy
+    to gradually increase with n.
