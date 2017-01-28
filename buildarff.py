@@ -244,11 +244,13 @@ def tweet_to_rff(tweet, polarity):
 
 
 def main(input_path, output_path, num_data_points):
-    num_tweets = 0
     current_tweet = ""
     current_polarity = None
+    class_counts = {
+        0: 0,
+        4: 0,
+    }
     with open(output_path, 'w') as output_file:
-        # TODO first write arff headers
         output_file.write('@RELATION {}\n\n'.format(output_path))
         output_file.write('@ATTRIBUTE first_person_pronouns NUMERIC\n')
         output_file.write('@ATTRIBUTE second_person_pronouns NUMERIC\n')
@@ -273,29 +275,31 @@ def main(input_path, output_path, num_data_points):
         output_file.write('@ATTRIBUTE polarity {0, 4}\n\n')
         output_file.write('@DATA\n')
 
-        # TODO if num_data_points, limit number of data points
-
         with open(input_path, 'r') as twt_file:
             for line in twt_file:
-                if num_data_points and num_tweets >= num_data_points:
+                if class_counts[0] >= num_data_points and class_counts[4] >= num_data_points:
                     # reached max amount to read
                     return
 
                 new_tweet = re.search(r'^<A=(\d)>$', line)
 
                 if new_tweet:
-                    if current_tweet:
+                    tweet_class = int(new_tweet.group(1))
+
+                    if current_tweet and not class_counts[current_polarity] >= num_data_points:
+                        class_counts[current_polarity] += 1
                         output_line = tweet_to_rff(current_tweet, current_polarity)
                         output_file.write(output_line)
-                        num_tweets += 1
                     # reset tweet and polarity
-                    current_polarity = int(new_tweet.group(1))
+                    current_polarity = tweet_class
                     current_tweet = ""
                 else:
                     current_tweet = "{0}{1}".format(current_tweet, line)
 
-            if current_tweet:
+
+            if current_tweet and not class_counts[current_polarity] >= num_data_points:
                 # last tweet
+                class_counts[current_polarity] += 1
                 output_line = tweet_to_rff(current_tweet, current_polarity)
                 output_file.write(output_line)
                 
@@ -307,8 +311,8 @@ if __name__ == '__main__':
     try:
         num_data_points = int(sys.argv[3])
         if num_data_points >= 20000:
-            num_data_points = None
+            num_data_points = float("inf")
     except IndexError:
-        num_data_points = None
+        num_data_points = float("inf")
 
     main(twt_input_path, output_path, num_data_points)

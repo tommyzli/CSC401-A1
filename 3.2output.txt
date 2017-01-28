@@ -1,39 +1,32 @@
 n               Testing accuracy
-500             49.3036%
-1000            49.3036%
-1400            49.3036%
-2000            49.3036%
-2500            49.3036%
-3000            49.3036%
-3500            49.3036%
-4000            49.3036%
-4500            49.3036%
-5000            49.3036%
-5500            49.3036%
-6000            49.3036%
-6500            49.3036%
-7000            49.3036%
-7500            49.3036%
-8000            49.3036%
-8500            49.3036%
-9000            49.3036%
-9500            49.3036%
-10000           49.3036%
+500             54.8747%
+1000            52.3677%
+1400            51.532%
+2000            50.6964%
+2500            50.9749%
+3000            50.9749%
+3500            51.2535%
+4000            50.6964%
+4500            50.6964%
+5000            50.4178%
+5500            50.4178%
+6000            51.8106%
+6500            52.3677%
+7000            51.2535%
+7500            51.8106%
+8000            50.9749%
+8500            50.1393%
+9000            50.9749%
+9500            52.0891%
+10000           52.0891%
 
 Comments:
-    Surprisingly, all the training file sizes resulted in the exact same accuracy.
-    The value (49.3036%) is less than the accuracy received when using the full
-    training data (52.0891%). Out of curiosity, I tried it with a training data
-    size of 15,000 and got an accuracy of 52.3677%.
+The accuracy fluctuated between 50% and 52% for most of the n-values. Surprisingly,
+n=500 had the highest accuracy of 54.8747%. I also noticed a few instances where
+consecutive n-values resulted in the same accuracy (such as 2500 and 3000, or 4000
+and 4500, or 9500 and 10000). From n=500 to n=5500, the general accuracy trend is
+decreasing, and from n=5500 to n=10000 has a generally increasing accuracy. 
 
-    Cause of the unchanging accuracy:
-    The training data (training.1600000.processed.noemoticon.csv) is sorted by
-    polarity. The first half of the file contains tweets with polarity=0, and
-    the second half contains tweets with polarity=4. This means that running
-    buildarff.py on train.twt with a limit of less than half of the tweets means
-    there will be no instances of polarity=4 in the arff file. This is also why
-    the accuracy improves with a training data size of 15,000, as it contains
-    over 50% of the data, meaning it contains some data with polarity=4.
-
-    If the training data was not sorted by polarity, then I would expect accuracy
-    to gradually increase with n.
+The fluctuations are likely caused by the small size of the training data. As the
+size of the training data increases, I expect the fluctuations to get smaller and
+the accuracy to increase.

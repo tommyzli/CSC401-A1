@@ -1,0 +1,78 @@
+n = 500:
+=== Attribute Selection on all input data ===
+
+Search Method:
+	Attribute ranking.
+
+Attribute Evaluator (supervised, Class (nominal): 21 polarity):
+	Information Gain Ranking Filter
+
+Ranked attributes:
+ 0.01722   19 average_length_of_tokens
+ 0.00995    1 first_person_pronouns
+ 0.00993   14 adverbs
+ 0          6 future_tense_verbs
+ 0          9 dashes
+ 0          7 commas
+ 0          8 colons_and_semicolons
+ 0          3 third_person_pronouns
+ 0          2 second_person_pronouns
+ 0          5 past_tense_verbs
+ 0          4 coordinating_conjunctions
+ 0         17 uppercase_words
+ 0         16 slang_acronyms
+ 0         20 number_of_sentences
+ 0         18 average_length_of_sentences
+ 0         11 ellipses
+ 0         10 parentheses
+ 0         15 wh_words
+ 0         12 common_nouns
+ 0         13 proper_nouns
+
+Selected attributes: 19,1,14,6,9,7,8,3,2,5,4,17,16,20,18,11,10,15,12,13 : 20
+
+n = 10000:
+=== Attribute Selection on all input data ===
+
+Search Method:
+	Attribute ranking.
+
+Attribute Evaluator (supervised, Class (nominal): 21 polarity):
+	Information Gain Ranking Filter
+
+Ranked attributes:
+ 0.020397   19 average_length_of_tokens
+ 0.009901    5 past_tense_verbs
+ 0.009901    6 future_tense_verbs
+ 0.007542   14 adverbs
+ 0.006322    1 first_person_pronouns
+ 0.006047    2 second_person_pronouns
+ 0.004111   13 proper_nouns
+ 0.002812   11 ellipses
+ 0.002569    9 dashes
+ 0.001825   18 average_length_of_sentences
+ 0.001709    4 coordinating_conjunctions
+ 0.001643    3 third_person_pronouns
+ 0.00113     7 commas
+ 0.001022   16 slang_acronyms
+ 0.000721   15 wh_words
+ 0.000613    8 colons_and_semicolons
+ 0.000362   10 parentheses
+ 0          20 number_of_sentences
+ 0          12 common_nouns
+ 0          17 uppercase_words
+
+Selected attributes: 19,5,6,14,1,2,13,11,9,18,4,3,7,16,15,8,10,20,12,17 : 20
+
+
+Comments:
+In both cases, the average token length, adverbs, and first person pronouns
+retain their importance.
+
+First person pronouns are likely important because a significant percentage
+of tweets are of people talking about themselves, and as such would be very
+common in the corpus.
+
+Adverbs are used to modify verbs and adjectives, so they would appear often
+when conveying emotion. This would give adverbs a correlation to the polarity
+of a tweet, hence its importance.
