@@ -296,13 +296,11 @@ def main(input_path, output_path, num_data_points):
                 else:
                     current_tweet = "{0}{1}".format(current_tweet, line)
 
-
             if current_tweet and not class_counts[current_polarity] >= num_data_points:
                 # last tweet
                 class_counts[current_polarity] += 1
                 output_line = tweet_to_rff(current_tweet, current_polarity)
                 output_file.write(output_line)
-                
 
 
 if __name__ == '__main__':
