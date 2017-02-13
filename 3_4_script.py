@@ -13,7 +13,8 @@ class AllDoneException(Exception):
 def find_available_file_with_polarity(polarity, output_dict):
     for key, val in output_dict.iteritems():
         total = val[polarity]
-        if total < tweets_per_polarity_per_file: return key
+        if total < tweets_per_polarity_per_file:
+            return key
 
     # every output is full
     raise AllDoneException()
@@ -22,8 +23,9 @@ if __name__ == '__main__':
     # Training file path
     input_path = sys.argv[1]
 
-    # Partition training file
     print "creating individual and concatenated partitions"
+
+    # Partition training file
     outputs = {
         index: {
             'file': open('partition_{}.arff'.format(index), 'w'),
@@ -48,12 +50,22 @@ if __name__ == '__main__':
             outputs[key_to_write][polarity] += 1
 
     for output_file in outputs.itervalues():
-        output_file['file'].close() # Combine partitions
+        output_file['file'].close()  # Combine partitions
 
-    # ex. exclude_4.arff is a concatenation of all partitions except for partition_4.arff
+    # exclude_x.arff is a concatenation of all partitions except for partition_x.arff
     outputs = {
         index: open('exclude_{}.arff'.format(index), 'w')
         for index in range(1, 11)
+    }
+    inputs = {
+        index: open('partition_{}.arff'.format(index), 'r')
+        for index in range(1, 11)
+    }
+
+    # content of each partition, stored separately from the file pointer so the file can be closed later
+    input_lines = {
+        index: f.readlines()
+        for index, f in inputs.iteritems()
     }
 
     for output_index, output_file in outputs.iteritems():
@@ -84,19 +96,16 @@ if __name__ == '__main__':
         indexes_to_include = range(1, 11)
         indexes_to_include.remove(output_index)
         for partition_index in indexes_to_include:
-            partition_file = open('partition_{}.arff'.format(partition_index), 'r')
-            lines = partition_file.readlines()
-            output_file.writelines(lines)
-            partition_file.close()
+            output_file.writelines(
+                input_lines[partition_index]
+            )
 
     for i in range(1, 11):
         outputs[i].close()
+        inputs[i].close()
 
     # Add ARFF headers into each partition file
     for index in range(1, 11):
-        with open('partition_{}.arff'.format(index), 'r') as original_partition:
-            data = original_partition.read()
-
         with open('partition_{}.arff'.format(index), 'w') as new_partition:
             new_partition.write('@RELATION partition_{}.arff\n\n'.format(index))
             new_partition.write('@ATTRIBUTE first_person_pronouns NUMERIC\n')
@@ -121,7 +130,7 @@ if __name__ == '__main__':
             new_partition.write('@ATTRIBUTE number_of_sentences NUMERIC\n')
             new_partition.write('@ATTRIBUTE polarity {0, 4}\n\n')
             new_partition.write('@DATA\n')
-            new_partition.write(data)
+            new_partition.writelines(input_lines[index])
 
     # Run WEKA classifications
     print "Running cross validation, this will take some time"
@@ -140,8 +149,9 @@ if __name__ == '__main__':
                     stdout=output_file
                 )
 
-    # Stripping all classification data except for testing data confusion matrices
+    accuracies = {filename: [] for filename in cross_val_files}
     for filename in cross_val_files:
+        # strip all classification data except for testing data confusion matrices
         with open(filename, 'r') as classification_output:
             lines = classification_output.readlines()
             # keep only lines that start with a number (this strips everything except the confusion matrices)
@@ -153,55 +163,46 @@ if __name__ == '__main__':
 
         index = 0
         testing_matrix_lines = []
-        # Go through list two at a time, remove lines belonging to the training matrix
-        for i, j in zip(lines_to_keep[0::2], lines_to_keep[1::2]):
-            if index % 2 != 0:  # keep every other set of two lines, as they alternate between two lines for training matrix, two lines for testing matrix
+        for i, j in zip(lines_to_keep[0::2], lines_to_keep[1::2]):  # Go through the list two items at a time
+            # keep every other set of two lines, as they alternate between two lines for training matrix, two lines for testing matrix
+            if index % 2 != 0:
                 testing_matrix_lines.append(i)
                 testing_matrix_lines.append(j)
             index = index + 1
 
-        with open(filename, 'w') as confusion_matrix_output:
-            confusion_matrix_output.writelines(testing_matrix_lines)
+        print "Calculating accuracy, precision and recall for {}".format(filename)
+        current_matrix = {}
+        i = 1
+        for index, line in enumerate(testing_matrix_lines):
+            even = index % 2 == 0
+            values = line.rstrip().lstrip().split()
+            values = [int(val) for val in values if val.isdigit()]
 
-    accuracies = {filename: [] for filename in cross_val_files}
-    print "Calculating accuracy, precision and recall for each classifier"
-    for filename in cross_val_files:
-        with open(filename, 'r') as confusion_matrix_input:
-            print ""
-            print "Calculating {}".format(filename)
-            print ""
-            current_matrix = {}
-            i = 1
-            for index, line in enumerate(confusion_matrix_input):
-                even = index % 2 == 0
-                values = line.rstrip().lstrip().split()
-                values = [int(val) for val in values if val.isdigit()]
+            if even:
+                current_matrix[0] = values
+            else:
+                current_matrix[1] = values
 
-                if even:
-                    current_matrix[0] = values
-                else:
-                    current_matrix[1] = values
+            if not even:
+                print i
+                total = current_matrix[0][0] + current_matrix[0][1] + current_matrix[1][0] + current_matrix[1][1]
+                accuracy = (current_matrix[0][0] + current_matrix[1][1]) / float(total)
+                print "accuracy: {}".format(accuracy)
+                accuracies[filename].append(accuracy)
 
-                if not even:
-                    print i
-                    total = current_matrix[0][0] + current_matrix[0][1] + current_matrix[1][0] + current_matrix[1][1]
-                    accuracy = (current_matrix[0][0] + current_matrix[1][1]) / float(total)
-                    print "accuracy: {}".format(accuracy)
-                    accuracies[filename].append(accuracy)
+                precisiona = current_matrix[0][0] / float(current_matrix[0][0] + current_matrix[0][1])
+                print "precision a: {}".format(precisiona)
 
-                    precisiona = current_matrix[0][0] / float(current_matrix[0][0] + current_matrix[0][1])
-                    print "precision a: {}".format(precisiona)
+                precisionb = current_matrix[1][1] / float(current_matrix[1][0] + current_matrix[1][1])
+                print "precision b: {}".format(precisionb)
 
-                    precisionb = current_matrix[1][1] / float(current_matrix[1][0] + current_matrix[1][1])
-                    print "precision b: {}".format(precisionb)
+                recalla = current_matrix[0][0] / float(current_matrix[0][0] + current_matrix[1][0])
+                print "recall a: {}".format(recalla)
 
-                    recalla = current_matrix[0][0] / float(current_matrix[0][0] + current_matrix[1][0])
-                    print "recall a: {}".format(recalla)
-
-                    recallb = current_matrix[1][1] / float(current_matrix[1][1] + current_matrix[0][1])
-                    print "recall b: {}".format(recallb)
-                    i = i + 1
-                    current_matrix = {}
+                recallb = current_matrix[1][1] / float(current_matrix[1][1] + current_matrix[0][1])
+                print "recall b: {}".format(recallb)
+                i = i + 1
+                current_matrix = {}
 
     print ""
     print "P-values:"
@@ -213,4 +214,3 @@ if __name__ == '__main__':
 
     pval = stats.ttest_rel(accuracies['cross_val_bayes'], accuracies['cross_val_j48']).pvalue
     print "Bayes and J48: {}".format(pval)
-
