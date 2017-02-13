@@ -141,6 +141,13 @@ if __name__ == '__main__':
     }
     cross_val_files = ['cross_val_bayes', 'cross_val_j48', 'cross_val_smo']
     for filename in cross_val_files:
+        if "bayes" in filename:
+            print "Running cross validation on Naive Bayes"
+        elif "j48" in filename:
+            print "Running cross validation on J48"
+        elif "smo" in filename:
+            print "Running cross validation on SMO"
+
         with open(filename, 'w') as output_file:
             for i in range(1, 11):
                 subprocess.call(
@@ -150,7 +157,6 @@ if __name__ == '__main__':
                 )
 
     accuracies = {filename: [] for filename in cross_val_files}
-    print "Partition\tAccuracy\tPrecision(a)\tPrecision(b)\tRecall(a)\tRecall(b)"
     for filename in cross_val_files:
         # strip all classification data except for testing data confusion matrices
         with open(filename, 'r') as classification_output:
@@ -171,7 +177,9 @@ if __name__ == '__main__':
                 testing_matrix_lines.append(j)
             index = index + 1
 
+        print ""
         print "Calculating accuracy, precision and recall for {}".format(filename)
+        print "Partition\tAccuracy\tPrecision(a)\tPrecision(b)\tRecall(a)\t\tRecall(b)"
         current_matrix = {}
         i = 1
         for index, line in enumerate(testing_matrix_lines):
@@ -185,24 +193,18 @@ if __name__ == '__main__':
                 current_matrix[1] = values
 
             if not even:
-                # print i
                 total = current_matrix[0][0] + current_matrix[0][1] + current_matrix[1][0] + current_matrix[1][1]
                 accuracy = (current_matrix[0][0] + current_matrix[1][1]) / float(total)
-                # print "accuracy: {}".format(accuracy)
                 accuracies[filename].append(accuracy)
 
                 precisiona = current_matrix[0][0] / float(current_matrix[0][0] + current_matrix[0][1])
-                # print "precision a: {}".format(precisiona)
 
                 precisionb = current_matrix[1][1] / float(current_matrix[1][0] + current_matrix[1][1])
-                # print "precision b: {}".format(precisionb)
 
                 recalla = current_matrix[0][0] / float(current_matrix[0][0] + current_matrix[1][0])
-                # print "recall a: {}".format(recalla)
 
                 recallb = current_matrix[1][1] / float(current_matrix[1][1] + current_matrix[0][1])
-                # print "recall b: {}".format(recallb)
-                print "{0}\t{1}\t{2}\t{3}\t{4}".format(
+                print "{0}\t\t{1}\t\t{2}\t\t{3}\t\t{4}\t\t{5}".format(
                     i,
                     accuracy,
                     precisiona,
