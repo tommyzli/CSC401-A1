@@ -91,7 +91,7 @@ if __name__ == '__main__':
 
     for i in range(1, 11):
         outputs[i].close()
-            
+
     # Add ARFF headers into each partition file
     for index in range(1, 11):
         with open('partition_{}.arff'.format(index), 'r') as original_partition:
@@ -156,8 +156,8 @@ if __name__ == '__main__':
         # Go through list two at a time, remove lines belonging to the training matrix
         for i, j in zip(lines_to_keep[0::2], lines_to_keep[1::2]):
             if index % 2 != 0:  # keep every other set of two lines, as they alternate between two lines for training matrix, two lines for testing matrix
-                testing_matrix_lines.append(i) 
-                testing_matrix_lines.append(j) 
+                testing_matrix_lines.append(i)
+                testing_matrix_lines.append(j)
             index = index + 1
 
         with open(filename, 'w') as confusion_matrix_output:
