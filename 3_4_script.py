@@ -150,6 +150,7 @@ if __name__ == '__main__':
                 )
 
     accuracies = {filename: [] for filename in cross_val_files}
+    print "Partition\tAccuracy\tPrecision(a)\tPrecision(b)\tRecall(a)\tRecall(b)"
     for filename in cross_val_files:
         # strip all classification data except for testing data confusion matrices
         with open(filename, 'r') as classification_output:
@@ -184,23 +185,31 @@ if __name__ == '__main__':
                 current_matrix[1] = values
 
             if not even:
-                print i
+                # print i
                 total = current_matrix[0][0] + current_matrix[0][1] + current_matrix[1][0] + current_matrix[1][1]
                 accuracy = (current_matrix[0][0] + current_matrix[1][1]) / float(total)
-                print "accuracy: {}".format(accuracy)
+                # print "accuracy: {}".format(accuracy)
                 accuracies[filename].append(accuracy)
 
                 precisiona = current_matrix[0][0] / float(current_matrix[0][0] + current_matrix[0][1])
-                print "precision a: {}".format(precisiona)
+                # print "precision a: {}".format(precisiona)
 
                 precisionb = current_matrix[1][1] / float(current_matrix[1][0] + current_matrix[1][1])
-                print "precision b: {}".format(precisionb)
+                # print "precision b: {}".format(precisionb)
 
                 recalla = current_matrix[0][0] / float(current_matrix[0][0] + current_matrix[1][0])
-                print "recall a: {}".format(recalla)
+                # print "recall a: {}".format(recalla)
 
                 recallb = current_matrix[1][1] / float(current_matrix[1][1] + current_matrix[0][1])
-                print "recall b: {}".format(recallb)
+                # print "recall b: {}".format(recallb)
+                print "{0}\t{1}\t{2}\t{3}\t{4}".format(
+                    i,
+                    accuracy,
+                    precisiona,
+                    precisionb,
+                    recalla,
+                    recallb,
+                )
                 i = i + 1
                 current_matrix = {}
 
